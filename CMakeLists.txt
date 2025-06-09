@@ -145,3 +145,9 @@ target_link_libraries(fastlivo_mapping
 if(mimalloc_FOUND)
   target_link_libraries(fastlivo_mapping mimalloc)
 endif()
+
+add_executable(map_saver src/map_saver.cpp)
+target_link_libraries(map_saver
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)

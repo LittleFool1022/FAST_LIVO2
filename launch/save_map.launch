@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="fast_livo" type="map_saver" name="map_saver" output="screen">
+        <!-- 保存目录 -->
+        <param name="save_dir" value="$(env HOME)/catkin_ws/maps"/>
+        
+        <!-- 是否保存点云地图 -->
+        <param name="save_cloud" value="true"/>
+        
+        <!-- 是否保存栅格地图 -->
+        <param name="save_map" value="true"/>
+        
+        <!-- 点云话题 -->
+        <param name="cloud_topic" value="/fast_lio/cloud_registered"/>
+        
+        <!-- 地图话题 -->
+        <param name="map_topic" value="/map"/>
+    </node>
+</launch>
