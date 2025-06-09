@@ -1,0 +1,6 @@
+<launch>
+  <group ns="fast_lio">
+    <rosparam command="load" file="$(find fast_livo)/config/mid360.yaml" />
+    <node pkg="fast_livo" type="fastlivo_mapping" name="fast_lio" output="screen"/>
+  </group>
+</launch>

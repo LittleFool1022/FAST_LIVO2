@@ -26,7 +26,7 @@ class LIVMapper
 public:
   LIVMapper(ros::NodeHandle &nh);
   ~LIVMapper();
-  void initializeSubscribersAndPublishers(ros::NodeHandle &nh, image_transport::ImageTransport &it);
+  void initializeSubscribersAndPublishers(ros::NodeHandle &nh);
   void initializeComponents();
   void initializeFiles();
   void run();
