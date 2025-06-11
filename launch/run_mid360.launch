@@ -4,7 +4,13 @@
         <remap from="/livox/lidar" to="/livox/lidar" />
         <remap from="/livox/imu" to="/livox/imu" />
     </node>
+    <param name="lvx_time_sync_en" type="bool" value="true"/>
+    <param name="ros_time_en" type="bool" value="true"/>
+
     <!-- 添加静态TF，确保livox_frame为全局主frame -->
     <node pkg="tf" type="static_transform_publisher" name="map_to_livox"
           args="0 0 0 0 0 0 map livox_frame 100"/>
+    <!-- livox_frame -> camera_init -->
+    <node pkg="tf" type="static_transform_publisher" name="livox_to_camera"
+          args="0 0 0 0 0 0 livox_frame camera_init 100"/>
 </launch>

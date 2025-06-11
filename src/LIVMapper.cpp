@@ -1244,6 +1244,10 @@ void LIVMapper::publish_odometry(const ros::Publisher &pubOdomAftMapped)
   transform.setRotation(q);
   br.sendTransform( tf::StampedTransform(transform, odomAftMapped.header.stamp, "camera_init", "aft_mapped") );
   pubOdomAftMapped.publish(odomAftMapped);
+
+  // 新增：同步发布 camera_init -> base_link 的 TF
+  static tf::TransformBroadcaster br_base;
+  br_base.sendTransform(tf::StampedTransform(transform, odomAftMapped.header.stamp, "camera_init", "base_link"));
 }
 
 void LIVMapper::publish_mavros(const ros::Publisher &mavros_pose_publisher)
