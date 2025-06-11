@@ -1,19 +1,23 @@
-<?xml version="1.0"?>
 <launch>
-    <node pkg="fast_livo" type="map_saver" name="map_saver" output="screen">
-        <!-- 保存目录 -->
+    <!-- 静态TF，确保全局主frame为livox_frame -->
+    <node pkg="tf" type="static_transform_publisher" name="map_to_livox"
+          args="0 0 0 0 0 0 map livox_frame 100"/>
+
+    <!-- octomap_server，实时生成八叉树和2D地图 -->
+    <node pkg="octomap_server" type="octomap_server_node" name="octomap_server" output="screen">
+        <param name="frame_id" value="livox_frame"/>
+        <param name="resolution" value="0.1"/>
+        <param name="min_height" value="-1.0"/>
+        <param name="max_height" value="2.0"/>
+        <param name="latch" value="true"/>
+        <param name="filter_ground" value="false"/>
+        <param name="filter_speckles" value="false"/>
+        <remap from="cloud_in" to="/livox/lidar"/>
+    </node>
+
+    <!-- 可选：自动保存2D地图（如需静态地图） -->
+    <node pkg="map_server" type="map_saver" name="map_saver" output="screen">
+        <param name="map_topic" value="/octomap_server/projected_map"/>
         <param name="save_dir" value="$(env HOME)/catkin_ws/maps"/>
-        
-        <!-- 是否保存点云地图 -->
-        <param name="save_cloud" value="true"/>
-        
-        <!-- 是否保存栅格地图 -->
-        <param name="save_map" value="true"/>
-        
-        <!-- 点云话题 -->
-        <param name="cloud_topic" value="/fast_lio/cloud_registered"/>
-        
-        <!-- 地图话题 -->
-        <param name="map_topic" value="/map"/>
     </node>
 </launch>

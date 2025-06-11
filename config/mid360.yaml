@@ -1,10 +1,10 @@
 # FAST-LIO2 配置文件 for Livox MID-360
 
 # 激光雷达类型
-lidar_type: "livox"
+preprocess/lidar_type: 7  # 7代表Livox自定义PointCloud2类型
 
 # 点云话题
-point_cloud_topic: "/livox/lidar"
+common/lid_topic: "/livox/lidar"
 
 # IMU话题（如有IMU，否则可留空或注释）
 common/imu_topic: "/livox/imu"
@@ -22,7 +22,6 @@ extrinsic_R: [1, 0, 0,
               0, 0, 1]
 extrinsic_T_imu: [0, 0, 0]
 
-
 # 地图分辨率
 map_resolution: 0.2
 
@@ -39,20 +38,6 @@ blind: 0.01  # 盲区距离
 
 # 禁用相机功能
 use_camera: false
-
-# 相机参数（如果不需要可以注释掉）
-# laserMapping/cam_model: "Pinhole"
-# laserMapping/cam_width: 1280
-# laserMapping/cam_height: 1024
-# laserMapping/scale: 0.5
-# laserMapping/cam_fx: 1293.57
-# laserMapping/cam_fy: 1293.32
-# laserMapping/cam_cx: 626.914
-# laserMapping/cam_cy: 522.799
-# laserMapping/cam_d0: -0.07616
-# laserMapping/cam_d1: 0.123001
-# laserMapping/cam_d2: -0.00113
-# laserMapping/cam_d3: 0.000251
 
 # 其他参数可根据实际需求调整 
 common/img_en: 0 

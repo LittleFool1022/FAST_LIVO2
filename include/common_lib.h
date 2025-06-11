@@ -37,13 +37,14 @@ using namespace Sophus;
 
 enum LID_TYPE
 {
-  AVIA = 1,
+  AVIA = 0,
+  OUST64 = 1,
   VELO16 = 2,
-  OUST64 = 3,
-  L515 = 4,
-  XT32 = 5,
-  PANDAR128 = 6,
-  ROBOSENSE = 7
+  L515 = 3,
+  XT32 = 4,
+  PANDAR128 = 5,
+  ROBOSENSE = 6,
+  LIVOX_PCD2 = 7
 };
 enum SLAM_MODE
 {

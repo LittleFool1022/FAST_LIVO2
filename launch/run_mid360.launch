@@ -1,6 +1,10 @@
 <launch>
-  <group ns="fast_lio">
     <rosparam command="load" file="$(find fast_livo)/config/mid360.yaml" />
-    <node pkg="fast_livo" type="fastlivo_mapping" name="fast_lio" output="screen"/>
-  </group>
+    <node pkg="fast_livo" type="fastlivo_mapping" name="fast_lio" output="screen">
+        <remap from="/livox/lidar" to="/livox/lidar" />
+        <remap from="/livox/imu" to="/livox/imu" />
+    </node>
+    <!-- 添加静态TF，确保livox_frame为全局主frame -->
+    <node pkg="tf" type="static_transform_publisher" name="map_to_livox"
+          args="0 0 0 0 0 0 map livox_frame 100"/>
 </launch>

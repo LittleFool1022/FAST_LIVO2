@@ -85,6 +85,43 @@ void Preprocess::process(const sensor_msgs::PointCloud2::ConstPtr &msg, PointClo
     robosense_handler(msg);
     break;
 
+  case AVIA:  // 添加对PointCloud2格式的处理
+    {
+      pl_surf.clear();
+      pl_corn.clear();
+      pl_full.clear();
+      
+      pcl::PointCloud<pcl::PointXYZI> pl_orig;
+      pcl::fromROSMsg(*msg, pl_orig);
+      int plsize = pl_orig.size();
+      pl_surf.reserve(plsize);
+
+      for (int i = 0; i < plsize; i++)
+      {
+        if (i % point_filter_num != 0) continue;
+
+        double range = pl_orig.points[i].x * pl_orig.points[i].x + 
+                      pl_orig.points[i].y * pl_orig.points[i].y + 
+                      pl_orig.points[i].z * pl_orig.points[i].z;
+
+        if (range < blind_sqr) continue;
+
+        PointType added_pt;
+        added_pt.x = pl_orig.points[i].x;
+        added_pt.y = pl_orig.points[i].y;
+        added_pt.z = pl_orig.points[i].z;
+        added_pt.intensity = pl_orig.points[i].intensity;
+        added_pt.curvature = 0.0;  // 使用默认时间戳
+
+        pl_surf.points.push_back(added_pt);
+      }
+    }
+    break;
+
+  case LIVOX_PCD2:
+    livox_pcd2_handler(msg);
+    break;
+
   default:
     printf("Error LiDAR Type: %d \n", lidar_type);
     break;
@@ -683,7 +720,7 @@ void Preprocess::xt32_handler(const sensor_msgs::PointCloud2::ConstPtr &msg)
       added_pt.y = pl_orig.points[i].y;
       added_pt.z = pl_orig.points[i].z;
       added_pt.intensity = pl_orig.points[i].intensity;
-      added_pt.curvature = (pl_orig.points[i].timestamp - time_head) * 1000.f;
+      added_pt.curvature = pl_orig.points[i].timestamp / 1000.0;
 
       // printf("added_pt.curvature: %lf %lf \n", added_pt.curvature,
       // pl_orig.points[i].timestamp);
@@ -1123,4 +1160,28 @@ bool Preprocess::edge_jump_judge(const PointCloudXYZI &pl, vector<orgtype> &type
   if (d1 > edgea * d2 || (d1 - d2) > edgeb) { return false; }
 
   return true;
+}
+
+void Preprocess::livox_pcd2_handler(const sensor_msgs::PointCloud2::ConstPtr &msg)
+{
+    std::cout << "[DEBUG] livox_pcd2_handler called, plsize=" << msg->width * msg->height << std::endl;
+    pl_surf.clear();
+    pl_corn.clear();
+    pl_full.clear();
+
+    pcl::PointCloud<pcl::PointXYZI> pl_orig;
+    pcl::fromROSMsg(*msg, pl_orig);
+    int plsize = pl_orig.size();
+    pl_surf.reserve(plsize);
+
+    // 不再分线，所有点直接加入pl_surf
+    for (int i = 0; i < plsize; ++i) {
+        PointType pt;
+        pt.x = pl_orig.points[i].x;
+        pt.y = pl_orig.points[i].y;
+        pt.z = pl_orig.points[i].z;
+        pt.intensity = pl_orig.points[i].intensity;
+        pt.curvature = 0.0;
+        pl_surf.push_back(pt);
+    }
 }
