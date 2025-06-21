@@ -1,43 +1,85 @@
-# FAST-LIO2 配置文件 for Livox MID-360
+# FAST-LIVO 完整配置文件 for Livox MID-360
 
-# 激光雷达类型
-preprocess/lidar_type: 7  # 7代表Livox自定义PointCloud2类型
+common:
+  img_topic: "/left_camera/image"
+  lid_topic: "/livox/lidar"
+  imu_topic: "/livox/imu"
+  img_en: 0  # 禁用相机
+  lidar_en: 1
+  ros_driver_bug_fix: false
 
-# 点云话题
-common/lid_topic: "/livox/lidar"
+extrin_calib:
+  # MID-360 激光雷达到IMU的外参（需要根据实际硬件标定）
+  extrinsic_T: [0.0, 0.0, 0.0]
+  extrinsic_R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+  # 相机外参（禁用相机时可忽略）
+  Rcl: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+  Pcl: [0.0, 0.0, 0.0]
 
-# IMU话题（如有IMU，否则可留空或注释）
-common/imu_topic: "/livox/imu"
-imu/imu_en: true
+time_offset:
+  imu_time_offset: 0.0
+  img_time_offset: 0.0
+  exposure_time_init: 0.0
 
-# 激光雷达外参（如有标定结果请填写，否则保持默认）
-extrinsic_T: [1, 0, 0, 0,
-              0, 1, 0, 0,
-              0, 0, 1, 0,
-              0, 0, 0, 1]
+preprocess:
+  point_filter_num: 1
+  filter_size_surf: 0.08  # 降低滤波尺寸，保留更多细节
+  lidar_type: 1  # 适用于Livox激光雷达
+  scan_line: 4   # MID-360 有4条扫描线
+  blind: 0.05    # 减小盲区，提高近距离检测能力
 
-# 激光雷达到IMU的旋转（如有IMU且已标定，否则保持默认）
-extrinsic_R: [1, 0, 0,
-              0, 1, 0,
-              0, 0, 1]
-extrinsic_T_imu: [0, 0, 0]
+vio:
+  max_iterations: 5
+  outlier_threshold: 1000
+  img_point_cov: 100
+  patch_size: 8
+  patch_pyrimid_level: 4
+  normal_en: true
+  raycast_en: false
+  inverse_composition_en: false
+  exposure_estimate_en: true
+  inv_expo_cov: 0.1
 
-# 地图分辨率
-map_resolution: 0.2
+imu:
+  imu_en: true
+  imu_int_frame: 30
+  acc_cov: 0.1    # 降低加速度计噪声协方差
+  gyr_cov: 0.01   # 降低陀螺仪噪声协方差
+  b_acc_cov: 0.0001
+  b_gyr_cov: 0.0001
 
-# 最大激光帧数
-max_num_pts: 200000
+lio:
+  max_iterations: 8      # 增加迭代次数提高精度
+  dept_err: 0.015        # 降低深度误差阈值
+  beam_err: 0.03         # 降低光束误差阈值
+  min_eigen_value: 0.0005  # 进一步降低特征值阈值
+  voxel_size: 0.3        # 减小体素尺寸，提高地图精度
+  max_layer: 3           # 增加层数
+  max_points_num: 80     # 增加点数限制
+  layer_init_num: [8, 8, 8, 8, 8]  # 增加初始点数
 
-# 是否保存地图
-save_map: false
+local_map:
+  map_sliding_en: false
+  half_map_size: 100
+  sliding_thresh: 8
 
-# MID-360 激光雷达参数
-N_SCANS: 4  # MID-360 有 4 条扫描线
-point_filter_num: 1  # 点云降采样率
-blind: 0.01  # 盲区距离
+uav:
+  imu_rate_odom: false
+  gravity_align_en: true  # 启用重力对齐
 
-# 禁用相机功能
-use_camera: false
+publish:
+  dense_map_en: true
+  pub_effect_point_en: true   # 启用有效点发布，便于调试
+  pub_plane_en: false
+  pub_scan_num: 1
+  blind_rgb_points: 0.0
 
-# 其他参数可根据实际需求调整 
-common/img_en: 0 
+evo:
+  seq_name: "mid360_test"
+  pose_output_en: false
+
+pcd_save:
+  pcd_save_en: true
+  colmap_output_en: false
+  filter_size_pcd: 0.1   # 减小PCD滤波尺寸，保留更多细节
+  interval: -1

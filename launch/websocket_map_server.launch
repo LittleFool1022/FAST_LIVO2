@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- ========== WebSocket Map Server Launch File ========== -->
+    <!-- Provides real-time map data transmission to Android clients -->
+    
+    <!-- Server Configuration -->
+    <arg name="server_host" default="192.168.200.216"/>
+    <arg name="server_port" default="8000"/>
+    <arg name="enable_compression" default="true"/>
+    <arg name="compression_level" default="6"/>
+    <arg name="max_3d_points_per_chunk" default="5000"/>
+    <arg name="enable_debug" default="false"/>
+    
+    <!-- WebSocket Map Server Node -->
+    <node pkg="fast_livo" type="websocket_map_server.py" name="websocket_map_server" output="screen">
+        <param name="server_host" value="$(arg server_host)"/>
+        <param name="server_port" value="$(arg server_port)"/>
+        <param name="enable_compression" value="$(arg enable_compression)"/>
+        <param name="compression_level" value="$(arg compression_level)"/>
+        <param name="max_3d_points_per_chunk" value="$(arg max_3d_points_per_chunk)"/>
+        
+        <!-- Map update intervals -->
+        <param name="map_update_interval" value="2.0"/>
+        <param name="pointcloud_update_interval" value="1.0"/>
+        <param name="max_3d_points_buffer" value="50000"/>
+        
+        <!-- Debug settings -->
+        <param name="enable_debug" value="$(arg enable_debug)"/>
+    </node>
+    
+    <!-- Optional: Enhanced 2D Map Generator for better map quality -->
+    <node pkg="fast_livo" type="simple_2d_map_generator.py" name="enhanced_2d_mapping" output="screen">
+        <!-- LiDAR and obstacle detection parameters -->
+        <param name="lidar_height" value="0.25"/>
+        <param name="obstacle_min_height" value="0.01"/>
+        <param name="ground_height_tolerance" value="0.05"/>
+        
+        <!-- Map parameters -->
+        <param name="map_resolution" value="0.05"/>
+        <param name="map_size" value="50"/>
+        <param name="max_range" value="25.0"/>
+        <param name="min_range" value="0.05"/>
+        <param name="min_height" value="-0.4"/>
+        <param name="max_height" value="3.0"/>
+        
+        <!-- Obstacle detection sensitivity -->
+        <param name="obstacle_threshold" value="0.3"/>
+        <param name="free_threshold" value="0.15"/>
+        <param name="min_points_for_occupied" value="1"/>
+        
+        <!-- Publish enhanced map -->
+        <remap from="/map" to="/enhanced_2d_map"/>
+    </node>
+    
+    <!-- Network Monitor (Optional) -->
+    <node pkg="fast_livo" type="network_monitor.py" name="network_monitor" output="screen" if="$(arg enable_debug)">
+        <param name="monitor_interval" value="5.0"/>
+        <param name="log_network_stats" value="true"/>
+    </node>
+    
+    <!-- RViz for visualization (Optional) -->
+    <node pkg="rviz" type="rviz" name="websocket_rviz" 
+          args="-d $(find fast_livo)/rviz_cfg/websocket_mapping.rviz" if="false"/>
+    
+    <!-- Information Display -->
+    <node pkg="rostopic" type="rostopic" name="websocket_info" 
+          args="echo /websocket_map_server/status" output="screen" if="$(arg enable_debug)"/>
+</launch>
